@@ -2,12 +2,13 @@
 
 namespace YooAsset.Editor
 {
+	[CreateAssetMenu(fileName = "ShaderVariantCollectorSetting", menuName = "YooAsset/Create ShaderVariant Collector Settings")]
 	public class ShaderVariantCollectorSetting : ScriptableObject
 	{
 		/// <summary>
 		/// 文件存储路径
 		/// </summary>
-		public string SavePath = "Assets/AssetRaw/Shaders/MyShaderVariants.shadervariants";
+		public string SavePath = "Assets/MyShaderVariants.shadervariants";
 
 		/// <summary>
 		/// 收集的包裹名称

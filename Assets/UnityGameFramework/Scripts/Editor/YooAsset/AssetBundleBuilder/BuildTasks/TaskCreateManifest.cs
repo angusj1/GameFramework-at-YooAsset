@@ -34,7 +34,9 @@ namespace YooAsset.Editor
 			// 创建新补丁清单
 			PackageManifest manifest = new PackageManifest();
 			manifest.FileVersion = YooAssetSettings.ManifestFileVersion;
-			manifest.EnableAddressable = buildMapContext.EnableAddressable;
+			manifest.EnableAddressable = buildMapContext.Command.EnableAddressable;
+			manifest.LocationToLower = buildMapContext.Command.LocationToLower;
+			manifest.IncludeAssetGUID = buildMapContext.Command.IncludeAssetGUID;
 			manifest.OutputNameStyle = (int)buildParameters.OutputNameStyle;
 			manifest.PackageName = buildParameters.PackageName;
 			manifest.PackageVersion = buildParameters.PackageVersion;
@@ -47,7 +49,7 @@ namespace YooAsset.Editor
 				if (buildParameters.BuildMode == EBuildMode.IncrementalBuild)
 				{
 					var buildResultContext = context.GetContextObject<TaskBuilding_SBP.BuildResultContext>();
-					UpdateBuiltInBundleReference(manifest, buildResultContext, buildMapContext.ShadersBundleName);
+					UpdateBuiltInBundleReference(manifest, buildResultContext, buildMapContext.Command.ShadersBundleName);
 				}
 			}
 
@@ -98,7 +100,7 @@ namespace YooAsset.Editor
 			{
 				string fileName = YooAssetSettingsData.GetPackageHashFileName(buildParameters.PackageName, buildParameters.PackageVersion);
 				string filePath = $"{packageOutputDirectory}/{fileName}";
-				FileUtility.CreateFile(filePath, packageHash);
+				FileUtility.WriteAllText(filePath, packageHash);
 				BuildLogger.Log($"创建补丁清单哈希文件：{filePath}");
 			}
 
@@ -106,7 +108,7 @@ namespace YooAsset.Editor
 			{
 				string fileName = YooAssetSettingsData.GetPackageVersionFileName(buildParameters.PackageName);
 				string filePath = $"{packageOutputDirectory}/{fileName}";
-				FileUtility.CreateFile(filePath, buildParameters.PackageVersion);
+				FileUtility.WriteAllText(filePath, buildParameters.PackageVersion);
 				BuildLogger.Log($"创建补丁清单版本文件：{filePath}");
 			}
 		}
@@ -137,15 +139,13 @@ namespace YooAsset.Editor
 			List<PackageAsset> result = new List<PackageAsset>(1000);
 			foreach (var bundleInfo in buildMapContext.Collection)
 			{
-				var assetInfos = bundleInfo.GetAllMainAssetInfos();
+				var assetInfos = bundleInfo.GetAllManifestAssetInfos();
 				foreach (var assetInfo in assetInfos)
 				{
 					PackageAsset packageAsset = new PackageAsset();
-					if (buildMapContext.EnableAddressable)
-						packageAsset.Address = assetInfo.Address;
-					else
-						packageAsset.Address = string.Empty;
+					packageAsset.Address = buildMapContext.Command.EnableAddressable ? assetInfo.Address : string.Empty;
 					packageAsset.AssetPath = assetInfo.AssetPath;
+					packageAsset.AssetGUID = buildMapContext.Command.IncludeAssetGUID ? assetInfo.AssetGUID : string.Empty;
 					packageAsset.AssetTags = assetInfo.AssetTags.ToArray();
 					packageAsset.BundleID = GetAssetBundleID(assetInfo.BundleName, manifest);
 					packageAsset.DependIDs = GetAssetBundleDependIDs(packageAsset.BundleID, assetInfo, manifest);
@@ -205,6 +205,7 @@ namespace YooAsset.Editor
 				throw new Exception("没有发现着色器资源包！");
 
 			// 检测依赖交集并更新依赖ID
+			HashSet<string> tagTemps = new HashSet<string>();
 			foreach (var packageAsset in manifest.AssetList)
 			{
 				List<string> dependBundles = GetPackageAssetAllDependBundles(manifest, packageAsset);
@@ -215,8 +216,23 @@ namespace YooAsset.Editor
 					if (newDependIDs.Contains(shaderBundleId) == false)
 						newDependIDs.Add(shaderBundleId);
 					packageAsset.DependIDs = newDependIDs.ToArray();
+					foreach (var tag in packageAsset.AssetTags)
+					{
+						if (tagTemps.Contains(tag) == false)
+							tagTemps.Add(tag);
+					}
 				}
 			}
+
+			// 更新资源包标签
+			var packageBundle = manifest.BundleList[shaderBundleId];
+			List<string> newTags = new List<string>(packageBundle.Tags);
+			foreach (var tag in tagTemps)
+			{
+				if (newTags.Contains(tag) == false)
+					newTags.Add(tag);
+			}
+			packageBundle.Tags = newTags.ToArray();
 		}
 		private List<string> GetPackageAssetAllDependBundles(PackageManifest manifest, PackageAsset packageAsset)
 		{
@@ -302,7 +318,7 @@ namespace YooAsset.Editor
 			{
 				if (packageBundle.IsRawFile)
 				{
-					_cachedBundleDepends.Add(packageBundle.BundleName, new string[] { } );
+					_cachedBundleDepends.Add(packageBundle.BundleName, new string[] { });
 					continue;
 				}
 
@@ -321,7 +337,7 @@ namespace YooAsset.Editor
 			}
 			EditorTools.ClearProgressBar();
 		}
-		
+
 		private int[] GetBundleRefrenceIDs(PackageManifest manifest, PackageBundle targetBundle)
 		{
 			List<string> referenceList = new List<string>();

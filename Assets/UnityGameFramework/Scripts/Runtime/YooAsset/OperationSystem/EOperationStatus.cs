@@ -7,4 +7,4 @@ namespace YooAsset
 		Succeed,
 		Failed
 	}
-} 
+}
