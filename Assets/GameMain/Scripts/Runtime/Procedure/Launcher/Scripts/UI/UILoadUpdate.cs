@@ -67,6 +67,7 @@ namespace GameMain
                 () =>
                 {
                     GameModule.Resource.ClearSandbox();
+                    GameModule.Resource.ClearSandbox();
                     Application.Quit();
                 }, () => { OnContinue(null); });
         }

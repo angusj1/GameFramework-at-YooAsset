@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.IO;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityGameFramework.Runtime;
 
@@ -6,8 +7,13 @@ namespace GameFramework.Resource
 {
     internal partial class ResourceManager
     {
+        public class StreamingAssetsDefine
+        {
+            public const string RootFolderName = "yoo";
+        }
         public sealed class StreamingAssetsHelper
         {
+            private static bool _isInit = false;
             private static readonly Dictionary<string, bool> _cacheData = new Dictionary<string, bool>(1000);
 
 #if UNITY_ANDROID && !UNITY_EDITOR
@@ -62,6 +68,14 @@ namespace GameFramework.Resource
 
                 return result;
             }
+            
+            /// <summary>
+            /// 内置文件查询方法
+            /// </summary>
+            public static bool FileExists(string packageName, string fileName)
+            {
+                return _cacheData.Contains(fileName);
+            }
 #else
             public static bool FileExists(string filePath)
             {
@@ -78,6 +92,16 @@ namespace GameFramework.Resource
 
                 return result;
             }
+            
+            /// <summary>
+            /// 内置文件查询方法
+            /// </summary>
+            public static bool FileExists(string packageName, string fileName)
+            {
+                string filePath = Path.Combine(Application.streamingAssetsPath, StreamingAssetsDefine.RootFolderName, packageName, fileName);
+                return File.Exists(filePath);
+            }
+            
 #endif
         }
     }

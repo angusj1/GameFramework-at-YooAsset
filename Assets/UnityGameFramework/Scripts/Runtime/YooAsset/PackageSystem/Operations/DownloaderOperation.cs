@@ -34,6 +34,7 @@ namespace YooAsset
 		private int _lastDownloadCount = 0;
 		private long _cachedDownloadBytes = 0;
 		private int _cachedDownloadCount = 0;
+		private float _currentSpeed = 0f;
 		private ESteps _steps = ESteps.None;
 		
 
@@ -61,6 +62,14 @@ namespace YooAsset
 		public long CurrentDownloadBytes
 		{
 			get { return _lastDownloadBytes; }
+		}
+		
+		/// <summary>
+		/// 当前下载器下载速度
+		/// </summary>
+		public float CurrentSpeed
+		{
+			get { return _currentSpeed; }
 		}
 
 		/// <summary>

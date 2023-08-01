@@ -372,7 +372,7 @@ namespace UnityGameFramework.Runtime
         public UpdatePackageManifestOperation UpdatePackageManifestAsync(string packageVersion, int timeout = 60)
         {
             var package = YooAssets.GetPackage(PackageName);
-            return package.UpdatePackageManifestAsync(packageVersion,timeout);
+            return package.UpdatePackageManifestAsync(packageVersion, true, timeout);
         }
         
         /// <summary>
@@ -411,7 +411,8 @@ namespace UnityGameFramework.Runtime
 
         public void ClearSandbox()
         {
-            YooAssets.ClearSandbox();
+            // TODO 新的方法清沙盒
+            // YooAssets.ClearSandbox();
         }
 
         private void Update()

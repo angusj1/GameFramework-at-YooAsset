@@ -135,7 +135,7 @@ namespace GameFramework.Resource
         public void Initialize()
         {
             // 初始化资源系统
-            YooAssets.Initialize(new YooAssetsLogger(), InstanceRoot);
+            YooAssets.Initialize(new YooAssetsLogger());
             YooAssets.SetOperationSystemMaxTimeSlice(Milliseconds);
             YooAssets.SetCacheSystemCachedFileVerifyLevel(VerifyLevel);
 
@@ -217,12 +217,33 @@ namespace GameFramework.Resource
                 var createParameters = new HostPlayModeParameters();
                 createParameters.DecryptionServices = new GameDecryptionServices();
                 createParameters.QueryServices = new GameQueryServices();
-                createParameters.DefaultHostServer = HostServerURL;
-                createParameters.FallbackHostServer = HostServerURL;
+                // createParameters.DefaultHostServer = HostServerURL;
+                // createParameters.FallbackHostServer = HostServerURL;
+                createParameters.RemoteServices = new RemoteServices(HostServerURL, HostServerURL);
                 initializationOperation = package.InitializeAsync(createParameters);
             }
 
             return initializationOperation;
+        }
+        
+        private class RemoteServices : IRemoteServices
+        {
+            private readonly string _defaultHostServer;
+            private readonly string _fallbackHostServer;
+
+            public RemoteServices(string defaultHostServer, string fallbackHostServer)
+            {
+                _defaultHostServer = defaultHostServer;
+                _fallbackHostServer = fallbackHostServer;
+            }
+            string IRemoteServices.GetRemoteMainURL(string fileName)
+            {
+                return $"{_defaultHostServer}/{fileName}";
+            }
+            string IRemoteServices.GetRemoteFallbackURL(string fileName)
+            {
+                return $"{_fallbackHostServer}/{fileName}";
+            }
         }
 
         internal override void Update(float elapseSeconds, float realElapseSeconds)
@@ -659,7 +680,7 @@ namespace GameFramework.Resource
             
             float duration = Time.time;
 
-            SceneOperationHandle handle = YooAssets.LoadSceneAsync(sceneAssetName,LoadSceneMode.Single,activateOnLoad:true,priority:priority);
+            SceneOperationHandle handle = YooAssets.LoadSceneAsync(sceneAssetName,LoadSceneMode.Single,true,priority:priority);
 
             await handle.ToUniTask(ResourceHelper);
             

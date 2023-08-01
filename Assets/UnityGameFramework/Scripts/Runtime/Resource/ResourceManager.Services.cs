@@ -38,10 +38,21 @@ namespace GameFramework.Resource
         /// </summary>
         private class GameQueryServices : IQueryServices
         {
-            public bool QueryStreamingAssets(string fileName)
+            public DeliveryFileInfo GetDeliveryFileInfo(string packageName, string fileName)
             {
-                string builtinFolderName = YooAssets.GetStreamingAssetBuildinFolderName();
-                return StreamingAssetsHelper.FileExists($"{builtinFolderName}/{fileName}");
+                throw new NotImplementedException();
+            }
+
+            public bool QueryDeliveryFiles(string packageName, string fileName)
+            {
+                return false;
+            }
+            public bool QueryStreamingAssets(string packageName, string fileName)
+            {
+                // string builtinFolderName = YooAssets.GetStreamingAssetBuildinFolderName();
+                // return StreamingAssetsHelper.FileExists($"{builtinFolderName}/{fileName}");
+                // 注意：fileName包含文件格式
+                return StreamingAssetsHelper.FileExists(packageName, fileName);
             }
         }
     }
