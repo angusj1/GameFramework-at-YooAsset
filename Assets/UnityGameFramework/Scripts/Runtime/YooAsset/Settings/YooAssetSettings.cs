@@ -40,7 +40,7 @@ namespace YooAsset
 		/// <summary>
 		/// 默认的YooAsset文件夹名称
 		/// </summary>
-		public const string DefaultYooFolderName = "yoo";
+		public const string DefaultYooFolderName = "tao";
 
 		/// <summary>
 		/// 缓存的资源文件的文件夹名称

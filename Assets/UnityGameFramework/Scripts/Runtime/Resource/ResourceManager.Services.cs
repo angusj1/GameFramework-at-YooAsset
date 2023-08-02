@@ -33,33 +33,33 @@ namespace GameFramework.Resource
             }
         }
 
-        /// <summary>
-        /// 内置文件查询服务类。
-        /// </summary>
-        private class GameQueryServices : IQueryServices
-        {
-            public DeliveryFileInfo GetDeliveryFileInfo(string packageName, string fileName)
-            {
-                throw new NotImplementedException();
-            }
-
-            public bool QueryDeliveryFiles(string packageName, string fileName)
-            {
-                return false;
-            }
-            public bool QueryStreamingAssets(string packageName, string fileName)
-            {
-                // string builtinFolderName = YooAssets.GetStreamingAssetBuildinFolderName();
-                // return StreamingAssetsHelper.FileExists($"{builtinFolderName}/{fileName}");
-                // 注意：fileName包含文件格式
-                return StreamingAssetsHelper.FileExists(packageName, fileName);
-            }
-        }
+        // /// <summary>
+        // /// 内置文件查询服务类。
+        // /// </summary>
+        // private class GameQueryServices : IQueryServices
+        // {
+        //     public DeliveryFileInfo GetDeliveryFileInfo(string packageName, string fileName)
+        //     {
+        //         throw new NotImplementedException();
+        //     }
+        //
+        //     public bool QueryDeliveryFiles(string packageName, string fileName)
+        //     {
+        //         return false;
+        //     }
+        //     public bool QueryStreamingAssets(string packageName, string fileName)
+        //     {
+        //         // string builtinFolderName = YooAssets.GetStreamingAssetBuildinFolderName();
+        //         // return StreamingAssetsHelper.FileExists($"{builtinFolderName}/{fileName}");
+        //         // 注意：fileName包含文件格式
+        //         return StreamingAssetsHelper.FileExists(packageName, fileName);
+        //     }
+        // }
     }
 
     public class BundleStream : FileStream
     {
-        public const byte KEY = 64;
+        public const byte KEY = 181;
 
         public BundleStream(string path, FileMode mode, FileAccess access, FileShare share, int bufferSize, bool useAsync) : base(path, mode, access, share, bufferSize, useAsync)
         {
